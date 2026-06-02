@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <File Path=".env" />
+    <File Path="docker-compose.yml" />
+    <Project Path="src/IMS.Api/IMS.Api.csproj" />
+    <Project Path="src/IMS.Application/IMS.Application.csproj" />
+    <Project Path="src/IMS.Domain/IMS.Domain.csproj" />
+    <Project Path="src/IMS.Infrastructure/IMS.Infrastructure.csproj" />
+  </Folder>
+</Solution>
