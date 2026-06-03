@@ -14,7 +14,7 @@ public sealed class CreateProductHandlerTests(PostgresIntegrationTestFixture fix
     {
         await fixture.ResetDatabaseAsync();
         await using var context = fixture.CreateContext();
-        var handler = new CreateProduct.Handler(context, NullLogger.Instance);
+        var handler = new CreateProduct.Handler(context, NullLogger<CreateProduct.Handler>.Instance);
 
         var result = await handler.Handle(
             new CreateProduct.Command

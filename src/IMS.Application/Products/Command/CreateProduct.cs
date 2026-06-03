@@ -46,7 +46,7 @@ namespace IMS.Application.Products.Command
             }
         }
 
-        public sealed class Handler(IAppDbContext context, ILogger logger) : IRequestHandler<Command, Result<Guid>>
+        public sealed class Handler(IAppDbContext context, ILogger<Handler> logger) : IRequestHandler<Command, Result<Guid>>
         {
             public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
             {
