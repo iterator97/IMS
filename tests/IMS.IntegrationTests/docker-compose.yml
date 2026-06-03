@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ims-integration-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ims_integration_tests
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    command: ["postgres", "-c", "port=5433"]
+    ports:
+      - "5433:5433"
+    volumes:
+      - postgres_integration_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_integration_data:
