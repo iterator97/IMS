@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using IMS.Application.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -19,6 +20,8 @@ namespace IMS.Infrastructure
             {
                 options.UseNpgsql(connectionString);
             });
+            services.AddScoped<IAppDbContext>(provider =>
+                provider.GetRequiredService<AppDbContext>());
 
             return services;
         }

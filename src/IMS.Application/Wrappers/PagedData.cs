@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace IMS.Application.Wrappes
+namespace IMS.Application.Wrappers
 {
-    public sealed record PagedResult<T>(
+    public sealed record PagedData<T>(  
         IReadOnlyList<T> Items,
         int PageNumber,
         int PageSize,
