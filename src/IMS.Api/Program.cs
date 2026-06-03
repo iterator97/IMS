@@ -55,7 +55,6 @@ try
 
     await context.Database.MigrateAsync();
     await DbInitializer.SeedData(context);
-
 }
 catch (Exception ex)
 {
@@ -63,6 +62,5 @@ catch (Exception ex)
     logger.LogError(ex, "Error during migration");
     throw;
 }
-
 
 app.Run();

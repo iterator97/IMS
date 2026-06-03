@@ -2,6 +2,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using IMS.Domain;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace IMS.Application.Shared
 {
@@ -14,5 +15,7 @@ namespace IMS.Application.Shared
         DbSet<OrderItem> OrderItems { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
+        DatabaseFacade Database { get; }
     }
 }

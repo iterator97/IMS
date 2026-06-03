@@ -55,80 +55,111 @@ namespace IMS.Application.Orders.Command
         public sealed class Handler(IAppDbContext context, ILogger<Handler> logger)
             : IRequestHandler<Command, Result<Guid>>
         {
+            private sealed record ProductQuantity(Guid ProductId, int Quantity);
+
             public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
             {
-                if (!await UserExistsAsync(request.Order.UserId, cancellationToken))
+                var user = await GetUserAsync(request.Order.UserId, cancellationToken);
+
+                if (user == null)
                     return Result<Guid>.Error("User was not found.", 404);
 
-                if (!await AddressBelongsToUserAsync(
-                        request.Order.AddressId,
-                        request.Order.UserId,
-                        cancellationToken))
+                var address = await GetAddressAsync(
+                    request.Order.AddressId,
+                    cancellationToken);
+
+                if (address == null)
                     return Result<Guid>.Error("Address was not found.", 404);
 
-                if (await GetMissingProductIdsAsync(
-                    request.Order.Orders,
-                    cancellationToken) > 0)
+                var productQuantities = request.Order.Orders
+                    .GroupBy(order => order.ProductId)
+                    .Select(group => new ProductQuantity(
+                        group.Key,
+                        group.Sum(order => order.Quantity)))
+                    .OrderBy(productQuantity => productQuantity.ProductId)
+                    .ToList();
+
+                var missingProductIds = await GetMissingProductIdsAsync(
+                    productQuantities,
+                    cancellationToken);
+
+                if (missingProductIds.Count > 0)
                     return Result<Guid>.Error("One or more products were not found.", 404);
 
-                var order = new Order
+                await using var transaction = await context.Database.BeginTransactionAsync(cancellationToken);
+
+                try
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = request.Order.UserId,
-                    AddressId = request.Order.AddressId,
-                    CreatedAt = DateTime.UtcNow,
-                    Items = request.Order.Orders
+                    if (!await TryDecreaseProductsStockAsync(productQuantities, cancellationToken))
+                    {
+                        await transaction.RollbackAsync(cancellationToken);
+                        return Result<Guid>.Error("One or more products are out of stock.", 400);
+                    }
+
+                    var order = new Order
+                    {
+                        Id = Guid.NewGuid(),
+                        UserId = request.Order.UserId,
+                        AddressId = request.Order.AddressId,
+                        CreatedAt = DateTime.UtcNow,
+                        Items = [.. request.Order.Orders
                         .Select(item => new OrderItem
                         {
                             Id = Guid.NewGuid(),
                             ProductId = item.ProductId,
                             Quantity = item.Quantity
-                        })
-                        .ToList()
-                };
+                        })]
+                    };
 
-                context.Orders.Add(order);
+                    context.Orders.Add(order);
 
-                var result = await context.SaveChangesAsync(cancellationToken) > 0;
+                    await context.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
 
-                logger.LogInformation(
-                    "CreateOrder command executed. Order ID: {OrderId}, Success: {Success}",
-                    order.Id,
-                    result);
+                    logger.LogInformation(
+                        "CreateOrder command executed. Order ID: {OrderId}, Success: {Success}",
+                        order.Id,
+                        true);
 
-                return result
-                    ? Result<Guid>.Success(order.Id)
-                    : Result<Guid>.Error("Failed to create order.");
+                    return Result<Guid>.Success(order.Id);
+                }
+                catch (Exception exception)
+                {
+                    await transaction.RollbackAsync(cancellationToken);
+
+                    logger.LogError(
+                        exception,
+                        "CreateOrder command failed for UserId: {UserId}",
+                        request.Order.UserId);
+
+                    return Result<Guid>.Error("Failed to create order.");
+                }
             }
 
-            private async Task<bool> UserExistsAsync(
+            private async Task<User> GetUserAsync(
                 Guid userId,
                 CancellationToken cancellationToken)
             {
-                return await context.Users
-                    .AnyAsync(user => user.Id == userId, cancellationToken);
+                return await context.Users.FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
             }
 
-            private async Task<bool> AddressBelongsToUserAsync(
+            private async Task<Address> GetAddressAsync(
                 Guid addressId,
-                Guid userId,
                 CancellationToken cancellationToken)
             {
                 return await context.Addresses
-                    .AnyAsync(
+                    .FirstOrDefaultAsync(
                         address =>
-                            address.Id == addressId &&
-                            address.UserId == userId,
+                            address.Id == addressId,
                         cancellationToken);
             }
 
-            private async Task<int> GetMissingProductIdsAsync(
-                IReadOnlyList<OrderDto> orderItems,
+            private async Task<List<Guid>> GetMissingProductIdsAsync(
+                IReadOnlyList<ProductQuantity> productQuantities,
                 CancellationToken cancellationToken)
             {
-                var requestedProductIds = orderItems
-                    .Select(order => order.ProductId)
-                    .Distinct()
+                var requestedProductIds = productQuantities
+                    .Select(productQuantity => productQuantity.ProductId)
                     .ToList();
 
                 var existingProductIds = await context.Products
@@ -136,9 +167,28 @@ namespace IMS.Application.Orders.Command
                     .Select(product => product.Id)
                     .ToListAsync(cancellationToken);
 
-                return requestedProductIds
-                    .Except(existingProductIds)
-                    .Count();
+                return [.. requestedProductIds.Except(existingProductIds)];
+            }
+
+            private async Task<bool> TryDecreaseProductsStockAsync(
+                IReadOnlyList<ProductQuantity> productQuantities,
+                CancellationToken cancellationToken)
+            {
+                foreach (var productQuantity in productQuantities)
+                {
+                    if (await context.Products
+                        .Where(product =>
+                            product.Id == productQuantity.ProductId &&
+                            product.Stock >= productQuantity.Quantity)
+                        .ExecuteUpdateAsync(
+                            x => x.SetProperty(
+                                product => product.Stock,
+                                product => product.Stock - productQuantity.Quantity),
+                            cancellationToken) == 0)
+                        return false;
+                }
+
+                return true;
             }
         }
     }
