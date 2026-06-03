@@ -94,6 +94,10 @@ namespace IMS.Infrastructure
                 entity.Property(order => order.CreatedAt)
                     .IsRequired();
 
+                entity.Property(order => order.TotalAmount)
+                    .HasPrecision(18, 2)
+                    .IsRequired();
+
                 entity.HasOne(order => order.Address)
                     .WithMany()
                     .HasForeignKey(order => order.AddressId);
