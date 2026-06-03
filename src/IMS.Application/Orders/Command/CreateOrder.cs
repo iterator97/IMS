@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +7,7 @@ using FluentValidation;
 using IMS.Application.Orders.Dto;
 using IMS.Application.Shared;
 using IMS.Application.Wrappers;
+using IMS.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -55,22 +57,76 @@ namespace IMS.Application.Orders.Command
         {
             public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await context.Users.FindAsync([request.Order.UserId], cancellationToken);
-
-                if (user == null)
+                if (!await UserExistsAsync(request.Order.UserId, cancellationToken))
                     return Result<Guid>.Error("User was not found.", 404);
 
-                var addressExists = await context.Addresses
-                    .AnyAsync(
-                        address =>
-                            address.Id == request.Order.AddressId &&
-                            address.UserId == request.Order.UserId,
-                        cancellationToken);
-
-                if (!addressExists)
+                if (!await AddressBelongsToUserAsync(
+                        request.Order.AddressId,
+                        request.Order.UserId,
+                        cancellationToken))
                     return Result<Guid>.Error("Address was not found.", 404);
 
-                var requestedProductIds = request.Order.Orders
+                if (await GetMissingProductIdsAsync(
+                    request.Order.Orders,
+                    cancellationToken) > 0)
+                    return Result<Guid>.Error("One or more products were not found.", 404);
+
+                var order = new Order
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = request.Order.UserId,
+                    AddressId = request.Order.AddressId,
+                    CreatedAt = DateTime.UtcNow,
+                    Items = request.Order.Orders
+                        .Select(item => new OrderItem
+                        {
+                            Id = Guid.NewGuid(),
+                            ProductId = item.ProductId,
+                            Quantity = item.Quantity
+                        })
+                        .ToList()
+                };
+
+                context.Orders.Add(order);
+
+                var result = await context.SaveChangesAsync(cancellationToken) > 0;
+
+                logger.LogInformation(
+                    "CreateOrder command executed. Order ID: {OrderId}, Success: {Success}",
+                    order.Id,
+                    result);
+
+                return result
+                    ? Result<Guid>.Success(order.Id)
+                    : Result<Guid>.Error("Failed to create order.");
+            }
+
+            private async Task<bool> UserExistsAsync(
+                Guid userId,
+                CancellationToken cancellationToken)
+            {
+                return await context.Users
+                    .AnyAsync(user => user.Id == userId, cancellationToken);
+            }
+
+            private async Task<bool> AddressBelongsToUserAsync(
+                Guid addressId,
+                Guid userId,
+                CancellationToken cancellationToken)
+            {
+                return await context.Addresses
+                    .AnyAsync(
+                        address =>
+                            address.Id == addressId &&
+                            address.UserId == userId,
+                        cancellationToken);
+            }
+
+            private async Task<int> GetMissingProductIdsAsync(
+                IReadOnlyList<OrderDto> orderItems,
+                CancellationToken cancellationToken)
+            {
+                var requestedProductIds = orderItems
                     .Select(order => order.ProductId)
                     .Distinct()
                     .ToList();
@@ -80,18 +136,9 @@ namespace IMS.Application.Orders.Command
                     .Select(product => product.Id)
                     .ToListAsync(cancellationToken);
 
-                var missingProductIds = requestedProductIds
+                return requestedProductIds
                     .Except(existingProductIds)
-                    .ToList();
-
-                if (missingProductIds.Count > 0)
-                    return Result<Guid>.Error("One or more products were not found.", 404);
-
-                var result = await context.SaveChangesAsync(cancellationToken) > 0;
-
-                return result
-                    ? Result<Guid>.Success(Guid.NewGuid())
-                    : Result<Guid>.Error("Failed to create order.");
+                    .Count();
             }
         }
     }
