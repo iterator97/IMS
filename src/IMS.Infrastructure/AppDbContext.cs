@@ -23,6 +23,10 @@ namespace IMS.Infrastructure
 
             builder.Entity<Product>(entity =>
             {
+                entity.ToTable(table => table.HasCheckConstraint(
+                    "CK_Product_Stock_NonNegative",
+                    "\"Stock\" >= 0"));
+
                 entity.Property(product => product.Name)
                     .IsRequired()
                     .HasMaxLength(50);
