@@ -26,6 +26,15 @@ order creation with stock validation, discount calculation, location charge calc
 
 Start PostgreSQL from the root directory:
 
+Setup the databese connection string in `src/IMS.Api/appsettings.Development.json`, sample below:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=products_db;Username=username;Password=password"
+  }
+}
+```
+
 docker compose up -d
 
 Run the API:
