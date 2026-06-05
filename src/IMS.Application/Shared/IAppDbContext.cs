@@ -13,6 +13,7 @@ namespace IMS.Application.Shared
         DbSet<Address> Addresses { get; }
         DbSet<Order> Orders { get; }
         DbSet<OrderItem> OrderItems { get; }
+        DbSet<Discount> Discounts { get; }
 
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 

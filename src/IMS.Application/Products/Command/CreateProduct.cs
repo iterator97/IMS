@@ -63,7 +63,7 @@ namespace IMS.Application.Products.Command
 
                 var result = await context.SaveChangesAsync(cancellationToken) > 0;
 
-                logger.LogInformation("CreateProduct command executed. Product ID: {ProductId}, Success: {Success}", product.Id, result);
+                logger.LogInformation("CreateProduct command executed. Product Id: {ProductId}, Success: {Success}", product.Id, result);
 
                 return result
                     ? Result<Guid>.Success(product.Id)

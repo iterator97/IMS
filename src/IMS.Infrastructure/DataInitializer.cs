@@ -22,16 +22,22 @@ namespace IMS.Infrastructure
                 await context.SaveChangesAsync();
             }
 
+            if (!context.Discounts.Any())
+            {
+                context.Discounts.AddRange(GetDiscounts());
+                await context.SaveChangesAsync();
+            }
+
             if (!context.Addresses.Any())
             {
                 var users = context.Users
                     .OrderBy(user => user.Email)
-                    .Take(2)
+                    .Take(3)
                     .ToList();
 
-                if (users.Count >= 2)
+                if (users.Count >= 3)
                 {
-                    context.Addresses.AddRange(GetAddresses(users[0].Id, users[1].Id));
+                    context.Addresses.AddRange(GetAddresses(users[0].Id, users[1].Id, users[2].Id));
                     await context.SaveChangesAsync();
                 }
             }
@@ -53,7 +59,7 @@ namespace IMS.Infrastructure
                     .Take(4)
                     .ToList();
 
-                if (users.Count >= 2 && addresses.Count >= 2 && products.Count >= 4)
+                if (users.Count >= 3 && addresses.Count >= 3 && products.Count >= 8)
                 {
                     context.Orders.AddRange(GetOrders(users, addresses, products));
                     await context.SaveChangesAsync();
@@ -149,11 +155,18 @@ namespace IMS.Infrastructure
                     Name = "Jan",
                     Surname = "Nowak",
                     Email = "jan.nowak@example.com"
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "John",
+                    Surname = "Duen",
+                    Email = "john.duen@example.com"
                 }
             ];
         }
 
-        private static List<Address> GetAddresses(Guid firstUserId, Guid secondUserId)
+        private static List<Address> GetAddresses(Guid firstUserId, Guid secondUserId, Guid thirdUserId)
         {
             return
             [
@@ -164,8 +177,9 @@ namespace IMS.Infrastructure
                     Street = "Dluga",
                     Number = "12A",
                     PostalCode = "00-001",
-                    City = "Warszawa",
-                    Country = "Polska"
+                    City = "Warsaw",
+                    Country = "Poland",
+                    Continent = "Europe"
                 },
                 new()
                 {
@@ -174,8 +188,50 @@ namespace IMS.Infrastructure
                     Street = "Krotka",
                     Number = "8",
                     PostalCode = "30-002",
-                    City = "Krakow",
-                    Country = "Polska"
+                    City = "Cracow",
+                    Country = "Poland",
+                    Continent = "Europe"
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = thirdUserId,
+                    Street = "Sample",
+                    Number = "2",
+                    PostalCode = "90-102",
+                    City = "Tokyo",
+                    Country = "Japan",
+                    Continent = "Asia"
+                }
+
+            ];
+        }
+
+        private static List<Discount> GetDiscounts()
+        {
+            return
+            [
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Country = "Poland",
+                    Continent = "Europe",
+                    Amount = 0.15m,
+                    Enabled = true,
+                    Mode = DiscountMode.OnAll,
+                    StartDate = DateTime.UtcNow.AddMonths(-1),
+                    EndDate = DateTime.UtcNow.AddMonths(1)
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Country = "Japan",
+                    Continent = "Asia",
+                    Amount = 0.2m,
+                    Enabled = true,
+                    Mode = DiscountMode.OnAll,
+                    StartDate = DateTime.UtcNow.AddMonths(-1),
+                    EndDate = DateTime.UtcNow.AddMonths(1)
                 }
             ];
         }

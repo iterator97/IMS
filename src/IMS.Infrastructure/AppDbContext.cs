@@ -16,6 +16,7 @@ namespace IMS.Infrastructure
         public DbSet<Address> Addresses { get; set; } = null!;
         public DbSet<Order> Orders { get; set; } = null!;
         public DbSet<OrderItem> OrderItems { get; set; } = null!;
+        public DbSet<Discount> Discounts { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -87,11 +88,30 @@ namespace IMS.Infrastructure
                 entity.Property(address => address.Country)
                     .IsRequired()
                     .HasMaxLength(50);
+
+                entity.Property(address => address.Continent)
+                    .IsRequired()
+                    .HasMaxLength(50);
             });
 
             builder.Entity<Order>(entity =>
             {
+                entity.ToTable(table =>
+                {
+                    table.HasCheckConstraint(
+                        "CK_Orders_LocationCharge_Range",
+                        "\"LocationCharge\" >= 0 AND \"LocationCharge\" <= 1");
+
+                    table.HasCheckConstraint(
+                        "CK_Orders_TotalAmount_NonNegative",
+                        "\"TotalAmount\" >= 0");
+                });
+
                 entity.Property(order => order.CreatedAt)
+                    .IsRequired();
+
+                entity.Property(order => order.LocationCharge)
+                    .HasPrecision(5, 4)
                     .IsRequired();
 
                 entity.Property(order => order.TotalAmount)
@@ -112,9 +132,40 @@ namespace IMS.Infrastructure
                 entity.Property(item => item.Quantity)
                     .IsRequired();
 
+                entity.Property(item => item.Discount)
+                    .HasPrecision(5, 4)
+                    .IsRequired();
+
                 entity.HasOne(item => item.Product)
                     .WithMany()
                     .HasForeignKey(item => item.ProductId);
+            });
+
+            builder.Entity<Discount>(entity =>
+            {
+                entity.Property(discount => discount.StartDate)
+                    .IsRequired();
+
+                entity.Property(discount => discount.EndDate)
+                    .IsRequired();
+
+                entity.Property(discount => discount.Country)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(discount => discount.Continent)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(discount => discount.Amount)
+                    .HasPrecision(5, 4)
+                    .IsRequired();
+
+                entity.Property(discount => discount.Enabled)
+                    .IsRequired();
+
+                entity.Property(discount => discount.Mode)
+                    .IsRequired();
             });
         }
     }

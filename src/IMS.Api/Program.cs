@@ -3,6 +3,7 @@ using FluentValidation;
 using IMS.Application.Products.Command;
 using IMS.Api.Middleware;
 using IMS.Application.Products.Query;
+using IMS.Application.Services;
 using IMS.Application.Shared;
 using IMS.Infrastructure;
 using Microsoft.AspNetCore.Builder;
@@ -21,6 +22,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 // Mediator, FluentValidation, AutoMapper
 builder.Services.AddValidatorsFromAssemblyContaining<CreateProduct.Validator>();
+builder.Services.AddScoped<IOrderCalculator, OrderCalculator>();
 
 builder.Services.AddMediatR(cfg =>
 {

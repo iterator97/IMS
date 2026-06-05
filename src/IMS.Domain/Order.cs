@@ -16,5 +16,6 @@ public class Order
     public DateTime CreatedAt { get; set; }
     public List<OrderItem> Items { get; set; } = [];
 
+    public decimal LocationCharge { get; set; } = 0;
     public decimal TotalAmount { get; set; }
 }
