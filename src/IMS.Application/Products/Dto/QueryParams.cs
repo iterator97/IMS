@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace IMS.Application.Helpers
+namespace IMS.Application.Products.Dto
 {
     public sealed class QueryParams
     {

@@ -4,12 +4,13 @@ using IMS.Application.Products.Command;
 using IMS.Api.Middleware;
 using IMS.Application.Products.Query;
 using IMS.Application.Services;
-using IMS.Application.Shared;
 using IMS.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using IMS.Application.Profiles;
+using IMS.Application.Validation;
 
 var builder = WebApplication.CreateBuilder(args);
 

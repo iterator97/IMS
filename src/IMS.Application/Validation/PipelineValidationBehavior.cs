@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 
-namespace IMS.Application.Shared
+namespace IMS.Application.Validation
 {
     public sealed class PipelineValidationBehavior<TRequest, TResponse>(
         IEnumerable<IValidator<TRequest>> validators)

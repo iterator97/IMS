@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using IMS.Application.Helpers;
 using IMS.Application.Products.Command;
 using IMS.Application.Products.Dto;
 using IMS.Application.Products.Query;

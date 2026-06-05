@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using FluentValidation;
+using IMS.Application.Validation.Errors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -59,7 +60,7 @@ namespace IMS.Api.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
-            var response = new Application.Shared.ApiErrorResponse
+            var response = new ApiErrorResponse
             {
                 StatusCode = context.Response.StatusCode,
                 Message = "Internal Server Error",
