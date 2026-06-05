@@ -109,11 +109,13 @@ namespace IMS.Application.Orders.Command
                         })]
                     };
 
-                    await orderCalculator.Calculate(
+                    var discount = await GetActiveDiscount(address, order.CreatedAt, cancellationToken);
+
+                    order = orderCalculator.Calculate(
                         order,
-                        address,
+                        address.Region,
                         productsById,
-                        cancellationToken);
+                        discount);
 
                     context.Orders.Add(order);
 
@@ -207,6 +209,24 @@ namespace IMS.Application.Orders.Command
                 }
 
                 return true;
+            }
+
+            private async Task<Discount> GetActiveDiscount(
+                Address address,
+                DateTime orderDate,
+                CancellationToken cancellationToken)
+            {
+                return await context.Discounts
+                    .AsNoTracking()
+                    .Where(discount =>
+                        discount.Enabled &&
+                        discount.StartDate <= orderDate &&
+                        discount.EndDate >= orderDate &&
+                        discount.Country.ToLower() == address.Country.ToLower() &&
+                        discount.Region.ToLower() == address.Region.ToLower())
+                    .OrderByDescending(discount => discount.Amount)
+                    .ThenByDescending(discount => discount.StartDate)
+                    .FirstOrDefaultAsync(cancellationToken);
             }
         }
     }

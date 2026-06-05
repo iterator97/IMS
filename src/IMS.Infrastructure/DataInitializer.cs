@@ -13,58 +13,29 @@ namespace IMS.Infrastructure
             if (!context.Products.Any())
             {
                 context.Products.AddRange(GetProducts());
-                await context.SaveChangesAsync();
             }
 
             if (!context.Users.Any())
             {
                 context.Users.AddRange(GetUsers());
-                await context.SaveChangesAsync();
             }
 
             if (!context.Discounts.Any())
             {
                 context.Discounts.AddRange(GetDiscounts());
-                await context.SaveChangesAsync();
             }
 
             if (!context.Addresses.Any())
             {
-                var users = context.Users
-                    .OrderBy(user => user.Email)
-                    .Take(3)
-                    .ToList();
-
-                if (users.Count >= 3)
-                {
-                    context.Addresses.AddRange(GetAddresses(users[0].Id, users[1].Id, users[2].Id));
-                    await context.SaveChangesAsync();
-                }
+                context.Addresses.AddRange(GetAddresses(GetUsers()));
             }
 
             if (!context.Orders.Any())
             {
-                var users = context.Users
-                    .OrderBy(user => user.Email)
-                    .Take(2)
-                    .ToList();
-
-                var addresses = context.Addresses
-                    .OrderBy(address => address.City)
-                    .Take(2)
-                    .ToList();
-
-                var products = context.Products
-                    .OrderBy(product => product.Name)
-                    .Take(4)
-                    .ToList();
-
-                if (users.Count >= 3 && addresses.Count >= 3 && products.Count >= 8)
-                {
-                    context.Orders.AddRange(GetOrders(users, addresses, products));
-                    await context.SaveChangesAsync();
-                }
+                context.Orders.AddRange(GetOrders(GetUsers(), GetAddresses(GetUsers()), GetProducts()));
             }
+
+            await context.SaveChangesAsync();
         }
 
         private static List<Product> GetProducts()
@@ -73,7 +44,7 @@ namespace IMS.Infrastructure
             [
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("98e19074-75b0-4a7b-a8b2-281fc8924c0e"),
                     Name = "Laptop Lenovo ThinkPad",
                     Description = "Laptop Intel i5, RAM 16 GB, SSD 512 GB.",
                     Price = 4299.99m,
@@ -81,7 +52,7 @@ namespace IMS.Infrastructure
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("bb52ea10-7943-4d4e-9f86-154a1fd860e0"),
                     Name = "Monitor Dell 27",
                     Description = "Monitor QHD IPS z regulacja wysokosci.",
                     Price = 1299.00m,
@@ -89,7 +60,7 @@ namespace IMS.Infrastructure
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("3356eb68-3c46-409f-8986-9d78b6ca1958"),
                     Name = "Klawiatura Logitech",
                     Description = "Klawiatura mechaniczna RGB.",
                     Price = 349.99m,
@@ -97,7 +68,7 @@ namespace IMS.Infrastructure
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("ae8b6e23-3424-4cd9-8dd6-b22ca4033c75"),
                     Name = "Mysz Logitech MX Master 3S",
                     Description = "Ergonomiczna mysz do pracy biurowej.",
                     Price = 429.99m,
@@ -105,7 +76,7 @@ namespace IMS.Infrastructure
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("432e66c7-9ef9-405a-a100-25e0a0fe0a39"),
                     Name = "Sluchawki Sony WH-1000XM5",
                     Description = "Sluchawki z redukcja szumow.",
                     Price = 1499.99m,
@@ -113,7 +84,7 @@ namespace IMS.Infrastructure
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("5159bdb1-f787-4fba-9c5c-bb60b789250b"),
                     Name = "Dysk SSD Samsung 1TB",
                     Description = "Szybki dysk SSD NVMe o pojemnosci 1 TB.",
                     Price = 399.99m,
@@ -121,7 +92,7 @@ namespace IMS.Infrastructure
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("46c9f4eb-eece-4a8f-b834-06e7a8e1ee84"),
                     Name = "Smartfon Samsung Galaxy",
                     Description = "Smartfon AMOLED, 128 GB pamieci.",
                     Price = 2499.00m,
@@ -129,7 +100,7 @@ namespace IMS.Infrastructure
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("53cd7118-3120-4bc9-a226-9bf098d6ae4a"),
                     Name = "Tablet Apple iPad",
                     Description = "Tablet Retina, 64 GB pamieci.",
                     Price = 1999.99m,
@@ -144,21 +115,21 @@ namespace IMS.Infrastructure
             [
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("b22d4436-5576-4000-bcaf-053cbbe91941"),
                     Name = "Anna",
                     Surname = "Kowalska",
                     Email = "anna.kowalska@example.com"
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("429891f4-8501-4851-b109-7ef72d86c797"),
                     Name = "Jan",
                     Surname = "Nowak",
                     Email = "jan.nowak@example.com"
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = Guid.Parse("65b8a976-f2df-42d0-a91a-c95af6fe3bd8"),
                     Name = "John",
                     Surname = "Duen",
                     Email = "john.duen@example.com"
@@ -166,42 +137,31 @@ namespace IMS.Infrastructure
             ];
         }
 
-        private static List<Address> GetAddresses(Guid firstUserId, Guid secondUserId, Guid thirdUserId)
+        private static List<Address> GetAddresses(IReadOnlyList<User> users)
         {
             return
             [
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = firstUserId,
+                    Id = Guid.Parse("7f5dc35f-7e7a-4a9b-8501-2f5acc669527"),
+                    UserId = users[0].Id,
                     Street = "Dluga",
                     Number = "12A",
                     PostalCode = "00-001",
                     City = "Warsaw",
                     Country = "Poland",
-                    Continent = "Europe"
+                    Region = "Europe"
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    UserId = secondUserId,
-                    Street = "Krotka",
-                    Number = "8",
-                    PostalCode = "30-002",
-                    City = "Cracow",
-                    Country = "Poland",
-                    Continent = "Europe"
-                },
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    UserId = thirdUserId,
-                    Street = "Sample",
+                    Id = Guid.Parse("d8f3877e-ed3f-4ee4-a4cf-53572b8145ee"),
+                    UserId = users[2].Id,
+                    Street = "Sample Street",
                     Number = "2",
                     PostalCode = "90-102",
                     City = "Tokyo",
                     Country = "Japan",
-                    Continent = "Asia"
+                    Region = "Asia"
                 }
 
             ];
@@ -215,7 +175,7 @@ namespace IMS.Infrastructure
                 {
                     Id = Guid.NewGuid(),
                     Country = "Poland",
-                    Continent = "Europe",
+                    Region = "Europe",
                     Amount = 0.15m,
                     Enabled = true,
                     Mode = DiscountMode.OnAll,
@@ -226,7 +186,7 @@ namespace IMS.Infrastructure
                 {
                     Id = Guid.NewGuid(),
                     Country = "Japan",
-                    Continent = "Asia",
+                    Region = "Asia",
                     Amount = 0.2m,
                     Enabled = true,
                     Mode = DiscountMode.OnAll,

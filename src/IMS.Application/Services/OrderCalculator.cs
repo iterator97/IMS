@@ -1,30 +1,19 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using IMS.Application.Shared;
 using IMS.Domain;
-using Microsoft.EntityFrameworkCore;
 
 namespace IMS.Application.Services
 {
     public sealed class OrderCalculator : IOrderCalculator
     {
-        private readonly IAppDbContext _context;
-
-        public OrderCalculator(IAppDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task Calculate(
+        public Order Calculate(
             Order order,
-            Address address,
+            string region,
             IReadOnlyDictionary<Guid, Product> productsById,
-            CancellationToken cancellationToken)
+            Discount discount = null)
         {
-            order.LocationCharge = CalculateLocationCharge(address);
+            order.LocationCharge = CalculateLocationCharge(region);
 
             foreach (var item in order.Items)
             {
@@ -32,46 +21,25 @@ namespace IMS.Application.Services
                 item.Discount = CalculateQuantityDiscount(item.Quantity);
             }
 
-            var seasonalDiscount = await GetActiveDiscountAsync(
-                address,
-                order.CreatedAt,
-                cancellationToken);
-
-            if (seasonalDiscount != null)
+            if (discount != null)
             {
-                ApplySeasonalDiscount(order, productsById, seasonalDiscount);
+                ApplySeasonalDiscount(order, productsById, discount);
             }
 
             order.TotalAmount = CalculateTotalAmount(order, productsById);
+
+            return order;
         }
 
-        public decimal CalculateLocationCharge(Address address)
+        public decimal CalculateLocationCharge(string region)
         {
-            return address.Continent.ToLower() switch
+            return region.ToLower() switch
             {
                 "us" => 0.0m,
                 "europe" => 0.15m,
                 "asia" => 0.05m,
                 _ => 0m
             };
-        }
-
-        private async Task<Discount> GetActiveDiscountAsync(
-            Address address,
-            DateTime orderDate,
-            CancellationToken cancellationToken)
-        {
-            return await _context.Discounts
-                .AsNoTracking()
-                .Where(discount =>
-                    discount.Enabled &&
-                    discount.StartDate <= orderDate &&
-                    discount.EndDate >= orderDate &&
-                    discount.Country.ToLower() == address.Country.ToLower() &&
-                    discount.Continent.ToLower() == address.Continent.ToLower())
-                .OrderByDescending(discount => discount.Amount)
-                .ThenByDescending(discount => discount.StartDate)
-                .FirstOrDefaultAsync(cancellationToken);
         }
 
         private static void ApplySeasonalDiscount(
@@ -148,9 +116,9 @@ namespace IMS.Application.Services
         private static decimal CalculateQuantityDiscount(int quantity) =>
             quantity switch
             {
-                > 50 => 0.3m,
-                > 10 => 0.2m,
-                > 5 => 0.1m,
+                >= 50 => 0.3m,
+                >= 10 => 0.2m,
+                >= 5 => 0.1m,
                 _ => 0m
             };
     }

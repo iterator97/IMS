@@ -89,7 +89,7 @@ namespace IMS.Infrastructure
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(address => address.Continent)
+                entity.Property(address => address.Region)
                     .IsRequired()
                     .HasMaxLength(50);
             });
@@ -153,7 +153,7 @@ namespace IMS.Infrastructure
                     .IsRequired()
                     .HasMaxLength(50);
 
-                entity.Property(discount => discount.Continent)
+                entity.Property(discount => discount.Region)
                     .IsRequired()
                     .HasMaxLength(50);
 

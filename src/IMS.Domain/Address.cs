@@ -14,5 +14,5 @@ public class Address
     public required string PostalCode { get; set; }
     public required string City { get; set; }
     public required string Country { get; set; }
-    public required string Continent { get; set; }
+    public required string Region { get; set; }
 }

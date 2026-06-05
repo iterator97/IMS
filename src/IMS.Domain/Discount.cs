@@ -8,7 +8,7 @@ namespace IMS.Domain
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
         public required string Country { get; set; }
-        public required string Continent { get; set; }
+        public required string Region { get; set; }
         public decimal Amount { get; set; }
         public bool Enabled { get; set; }
         public DiscountMode Mode { get; set; }

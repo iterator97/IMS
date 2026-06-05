@@ -1,19 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using IMS.Domain;
 
 namespace IMS.Application.Services
 {
     public interface IOrderCalculator
     {
-        Task Calculate(
+        Order Calculate(
             Order order,
-            Address address,
+            string region,
             IReadOnlyDictionary<Guid, Product> productsById,
-            CancellationToken cancellationToken);
+            Discount discount);
 
-        decimal CalculateLocationCharge(Address address);
+        decimal CalculateLocationCharge(string region);
     }
 }
