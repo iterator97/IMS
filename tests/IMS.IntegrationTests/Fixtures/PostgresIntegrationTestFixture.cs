@@ -22,7 +22,7 @@ public sealed class PostgresIntegrationTestFixture : IAsyncLifetime
         await using var context = CreateContext();
 
         await context.Database.EnsureDeletedAsync();
-        await context.Database.EnsureCreatedAsync();
+        await context.Database.MigrateAsync();
     }
 
     public Task DisposeAsync()
