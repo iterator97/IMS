@@ -10,7 +10,7 @@ namespace IMS.Application.Services
             Order order,
             string region,
             IReadOnlyDictionary<Guid, Product> productsById,
-            Discount discount);
+            Discount? discount);
 
         decimal CalculateLocationCharge(string region);
     }

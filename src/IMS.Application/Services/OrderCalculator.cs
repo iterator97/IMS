@@ -11,8 +11,11 @@ namespace IMS.Application.Services
             Order order,
             string region,
             IReadOnlyDictionary<Guid, Product> productsById,
-            Discount discount = null)
+            Discount? discount = null)
         {
+            ArgumentNullException.ThrowIfNull(order);
+            ArgumentNullException.ThrowIfNull(productsById);
+
             order.LocationCharge = CalculateLocationCharge(region);
 
             foreach (var item in order.Items)
@@ -33,7 +36,10 @@ namespace IMS.Application.Services
 
         public decimal CalculateLocationCharge(string region)
         {
-            return region.ToLower() switch
+            if (string.IsNullOrWhiteSpace(region))
+                return 0m;
+
+            return region.Trim().ToLowerInvariant() switch
             {
                 "us" => 0.0m,
                 "europe" => 0.15m,

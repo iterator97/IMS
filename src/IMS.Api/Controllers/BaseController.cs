@@ -15,7 +15,7 @@ namespace IMS.Api.Controllers
                 return Ok(result.Value);
 
             if (!result.IsSuccess && result.ErrorCode == StatusCodes.Status404NotFound)
-                return NotFound();
+                return NotFound(result.ErrorMessage);
 
             return BadRequest(result.ErrorMessage);
         }

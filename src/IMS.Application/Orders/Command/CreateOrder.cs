@@ -60,9 +60,7 @@ namespace IMS.Application.Orders.Command
 
             public async Task<Result<Guid>> Handle(Command request, CancellationToken cancellationToken)
             {
-                var user = await GetUser(request.Order.UserId, cancellationToken);
-
-                if (user == null)
+                if (!await UserExists(request.Order.UserId, cancellationToken))
                     return Result<Guid>.Error("User was not found.", 404);
 
                 var address = await GetAddress(
@@ -94,20 +92,7 @@ namespace IMS.Application.Orders.Command
                         return Result<Guid>.Error("One or more products are out of stock.", 400);
                     }
 
-                    var order = new Order
-                    {
-                        Id = Guid.NewGuid(),
-                        UserId = request.Order.UserId,
-                        AddressId = request.Order.AddressId,
-                        CreatedAt = DateTime.UtcNow,
-                        Items = [.. productQuantities
-                        .Select(item => new OrderItem
-                        {
-                            Id = Guid.NewGuid(),
-                            ProductId = item.ProductId,
-                            Quantity = item.Quantity
-                        })]
-                    };
+                    var order = CreateOrderEntity(request.Order, productQuantities);
 
                     var discount = await GetActiveDiscount(address, order.CreatedAt, cancellationToken);
 
@@ -142,16 +127,16 @@ namespace IMS.Application.Orders.Command
                 }
             }
 
-            private async Task<User> GetUser(
+            private async Task<bool> UserExists(
                 Guid userId,
                 CancellationToken cancellationToken)
             {
                 return await context.Users
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(user => user.Id == userId, cancellationToken);
+                    .AnyAsync(user => user.Id == userId, cancellationToken);
             }
 
-            private async Task<Address> GetAddress(
+            private async Task<Address?> GetAddress(
                 Guid addressId,
                 Guid userId,
                 CancellationToken cancellationToken)
@@ -211,7 +196,27 @@ namespace IMS.Application.Orders.Command
                 return true;
             }
 
-            private async Task<Discount> GetActiveDiscount(
+            private static Order CreateOrderEntity(
+                CreateOrderDto orderDto,
+                IReadOnlyList<ProductQuantity> productQuantities)
+            {
+                return new Order
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = orderDto.UserId,
+                    AddressId = orderDto.AddressId,
+                    CreatedAt = DateTime.UtcNow,
+                    Items = [.. productQuantities
+                        .Select(item => new OrderItem
+                        {
+                            Id = Guid.NewGuid(),
+                            ProductId = item.ProductId,
+                            Quantity = item.Quantity
+                        })]
+                };
+            }
+
+            private async Task<Discount?> GetActiveDiscount(
                 Address address,
                 DateTime orderDate,
                 CancellationToken cancellationToken)
@@ -222,8 +227,8 @@ namespace IMS.Application.Orders.Command
                         discount.Enabled &&
                         discount.StartDate <= orderDate &&
                         discount.EndDate >= orderDate &&
-                        discount.Country.ToLower() == address.Country.ToLower() &&
-                        discount.Region.ToLower() == address.Region.ToLower())
+                        discount.Country.ToLower() == address.Country.ToLowerInvariant() &&
+                        discount.Region.ToLower() == address.Region.ToLowerInvariant())
                     .OrderByDescending(discount => discount.Amount)
                     .ThenByDescending(discount => discount.StartDate)
                     .FirstOrDefaultAsync(cancellationToken);

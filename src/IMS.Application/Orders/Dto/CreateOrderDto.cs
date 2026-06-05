@@ -7,6 +7,6 @@ namespace IMS.Application.Orders.Dto
     {
         public Guid UserId { get; set; }
         public Guid AddressId { get; set; }
-        public IReadOnlyList<OrderDto> Orders { get; set; }
+        public IReadOnlyList<OrderDto> Orders { get; set; } = [];
     }
 }

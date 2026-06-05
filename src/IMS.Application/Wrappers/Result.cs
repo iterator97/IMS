@@ -2,11 +2,11 @@
 {
     public sealed record Result<T>
     {
-        public T? Value;
-        public bool IsSuccess;
-        public bool IsError;
-        public string? ErrorMessage;
-        public int? ErrorCode;
+        public T? Value { get; init; }
+        public bool IsSuccess { get; init; }
+        public bool IsError { get; init; }
+        public string? ErrorMessage { get; init; }
+        public int? ErrorCode { get; init; }
 
         public static Result<T> Success(T value) => new()
         {
