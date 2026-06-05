@@ -8,18 +8,21 @@ namespace IMS.IntegrationTests.Products.Query;
 public sealed class GetProductsHandlerTests(PostgresIntegrationTestFixture fixture)
 {
     [Fact]
-    public async Task Handle_WhenProductsExist_ShouldReturnTotalCount()
+    public async Task Handle_WhenProductsExist_ShouldReturnPagedData()
     {
+        // Arrange
         await fixture.ResetAndSeedAsync();
 
         await using var context = fixture.CreateContext();
 
         var handler = new GetProducts.Handler(context);
 
+        // Act
         var result = await handler.Handle(
             new GetProducts.Query { QueryParams = new QueryParams() },
             CancellationToken.None);
 
+        // Assert
         Assert.True(result.IsSuccess);
         Assert.NotNull(result.Value);
         Assert.Equal(5, result.Value.TotalCount);
