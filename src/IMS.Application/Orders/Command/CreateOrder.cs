@@ -114,16 +114,11 @@ namespace IMS.Application.Orders.Command
 
                     return Result<Guid>.Success(order.Id);
                 }
-                catch (Exception exception)
+                catch
                 {
                     await transaction.RollbackAsync(cancellationToken);
 
-                    logger.LogError(
-                        exception,
-                        "CreateOrder command failed for UserId: {UserId}",
-                        request.Order.UserId);
-
-                    return Result<Guid>.Error("Failed to create order.");
+                    throw;
                 }
             }
 

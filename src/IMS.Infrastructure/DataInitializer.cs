@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using IMS.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace IMS.Infrastructure
 {
@@ -10,29 +10,34 @@ namespace IMS.Infrastructure
     {
         public static async Task SeedData(AppDbContext context)
         {
-            if (!context.Products.Any())
+            var products = GetProducts();
+            var users = GetUsers();
+            var addresses = GetAddresses(users);
+            var discounts = GetDiscounts();
+
+            if (!await context.Products.AnyAsync())
             {
-                context.Products.AddRange(GetProducts());
+                context.Products.AddRange(products);
             }
 
-            if (!context.Users.Any())
+            if (!await context.Users.AnyAsync())
             {
-                context.Users.AddRange(GetUsers());
+                context.Users.AddRange(users);
             }
 
-            if (!context.Discounts.Any())
+            if (!await context.Discounts.AnyAsync())
             {
-                context.Discounts.AddRange(GetDiscounts());
+                context.Discounts.AddRange(discounts);
             }
 
-            if (!context.Addresses.Any())
+            if (!await context.Addresses.AnyAsync())
             {
-                context.Addresses.AddRange(GetAddresses(GetUsers()));
+                context.Addresses.AddRange(addresses);
             }
 
-            if (!context.Orders.Any())
+            if (!await context.Orders.AnyAsync())
             {
-                context.Orders.AddRange(GetOrders(GetUsers(), GetAddresses(GetUsers()), GetProducts()));
+                context.Orders.AddRange(GetOrders(users, addresses, products));
             }
 
             await context.SaveChangesAsync();
@@ -155,7 +160,7 @@ namespace IMS.Infrastructure
                 new()
                 {
                     Id = Guid.Parse("d8f3877e-ed3f-4ee4-a4cf-53572b8145ee"),
-                    UserId = users[2].Id,
+                    UserId = users[1].Id,
                     Street = "Sample Street",
                     Number = "2",
                     PostalCode = "90-102",
@@ -209,19 +214,23 @@ namespace IMS.Infrastructure
                     UserId = users[0].Id,
                     AddressId = addresses[0].Id,
                     CreatedAt = DateTime.UtcNow.AddDays(-3),
+                    LocationCharge = 0.05m,
+                    TotalAmount = 0,
                     Items =
                     [
                         new()
                         {
                             Id = Guid.NewGuid(),
                             ProductId = products[0].Id,
-                            Quantity = 1
+                            Quantity = 1,
+                            Discount = 0
                         },
                         new()
                         {
                             Id = Guid.NewGuid(),
                             ProductId = products[1].Id,
-                            Quantity = 1
+                            Quantity = 1,
+                            Discount = 0
                         }
                     ]
                 },
@@ -231,19 +240,23 @@ namespace IMS.Infrastructure
                     UserId = users[1].Id,
                     AddressId = addresses[1].Id,
                     CreatedAt = DateTime.UtcNow.AddDays(-1),
+                    LocationCharge = 0.05m,
+                    TotalAmount = 0,
                     Items =
                     [
                         new()
                         {
                             Id = Guid.NewGuid(),
                             ProductId = products[2].Id,
-                            Quantity = 2
+                            Quantity = 2,
+                            Discount = 0
                         },
                         new()
                         {
                             Id = Guid.NewGuid(),
                             ProductId = products[3].Id,
-                            Quantity = 1
+                            Quantity = 1,
+                            Discount = 0
                         }
                     ]
                 }
