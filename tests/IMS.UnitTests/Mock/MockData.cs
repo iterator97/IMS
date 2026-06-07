@@ -102,6 +102,7 @@ namespace IMS.UnitTests.Mock
             return [ new Discount
                 {
                     Id = Guid.NewGuid(),
+                    Title = "Test sale",
                     Country = "Polska",
                     Region = "Europe",
                     Amount = 0.4m,
@@ -113,6 +114,7 @@ namespace IMS.UnitTests.Mock
                 new Discount
                 {
                     Id = Guid.NewGuid(),
+                    Title = "Test sale",
                     Country = "Polska",
                     Region = "Europe",
                     Amount = 0.4m,

@@ -46,6 +46,7 @@ namespace IMS.IntegrationTests.Mock
                 new Discount
                 {
                     Id = Guid.Parse("c40b4821-afb1-46d1-80de-208910177fdc"),
+                    Title = "Test sale",
                     Country = "Polska",
                     Region = "Europe",
                     Amount = 0.15m,

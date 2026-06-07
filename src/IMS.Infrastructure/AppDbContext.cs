@@ -146,6 +146,9 @@ namespace IMS.Infrastructure
 
             builder.Entity<Discount>(entity =>
             {
+                entity.Property(discount => discount.Title)
+                    .IsRequired();
+
                 entity.Property(discount => discount.StartDate)
                     .IsRequired();
 

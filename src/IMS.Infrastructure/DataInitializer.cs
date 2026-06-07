@@ -182,17 +182,31 @@ namespace IMS.Infrastructure
                 new()
                 {
                     Id = Guid.NewGuid(),
+                    Title = "Black Friday",
                     Country = "Poland",
                     Region = "Europe",
-                    Amount = 0.15m,
+                    Amount = 0.25m,
                     Enabled = true,
                     Mode = DiscountMode.OnAll,
-                    StartDate = DateTime.UtcNow.AddMonths(-1),
-                    EndDate = DateTime.UtcNow.AddMonths(1)
+                    StartDate = new DateTime(2026, 11, 27, 0, 0, 0),
+                    EndDate = new DateTime(2026, 11, 27, 23, 59, 59)
                 },
                 new()
                 {
                     Id = Guid.NewGuid(),
+                    Title = "Holiday sale",
+                    Country = "Poland",
+                    Region = "Europe",
+                    Amount = 0.15m,
+                    Enabled = true,
+                    Mode = DiscountMode.OnHighest,
+                    StartDate = new DateTime(2026, 7, 1, 0, 0, 0),
+                    EndDate = new DateTime(2026, 8, 31, 23, 59, 59)
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Title = "Test sale discount",
                     Country = "Japan",
                     Region = "Asia",
                     Amount = 0.2m,
