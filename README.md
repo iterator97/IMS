@@ -6,7 +6,7 @@ order creation with stock validation, discount calculation, location charge calc
 Reuirements covered:
 - Product listing and creation with stock management.
 - Order creation with stock validation, discount calculation, and location charge calculation.
-- Discount dates setup covered in IMS.Infrastructure/DataInitializer.cs [BlackFriday, Holiday]. With ability to ability to add feature with new discount, setup discount mode, disable/enable discount.
+- Discount dates setup covered in IMS.Infrastructure/DataInitializer.cs [BlackFriday, Holiday]. With ability to add feature with new discount, setup discount mode, disable/enable discount.
 
 ## Tech Stack
 - .NET 10
