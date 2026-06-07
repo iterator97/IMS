@@ -1,7 +1,8 @@
 using System;
 using System.Collections.Generic;
+using IMS.Domain.Orders;
 
-namespace IMS.Domain;
+namespace IMS.Domain.Users;
 
 public class User
 {

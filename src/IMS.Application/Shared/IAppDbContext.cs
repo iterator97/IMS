@@ -1,6 +1,9 @@
 using System.Threading;
 using System.Threading.Tasks;
-using IMS.Domain;
+using IMS.Domain.Discounts;
+using IMS.Domain.Orders;
+using IMS.Domain.Products;
+using IMS.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 

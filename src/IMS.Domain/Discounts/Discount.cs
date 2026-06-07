@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace IMS.Domain
+namespace IMS.Domain.Discounts
 {
     public class Discount
     {

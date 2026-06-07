@@ -1,4 +1,4 @@
-﻿namespace IMS.Domain
+﻿namespace IMS.Domain.Discounts
 {
     public enum DiscountMode
     {

@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using IMS.Domain;
+using IMS.Domain.Discounts;
+using IMS.Domain.Orders;
+using IMS.Domain.Products;
 
 namespace IMS.Application.Services
 {

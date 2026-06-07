@@ -1,6 +1,7 @@
 using System;
+using IMS.Domain.Products;
 
-namespace IMS.Domain;
+namespace IMS.Domain.Orders;
 
 public class OrderItem
 {

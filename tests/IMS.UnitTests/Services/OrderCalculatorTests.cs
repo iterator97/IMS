@@ -1,5 +1,8 @@
 using IMS.Application.Services;
-using IMS.Domain;
+using IMS.Domain.Discounts;
+using IMS.Domain.Orders;
+using IMS.Domain.Products;
+using IMS.Domain.Users;
 using IMS.UnitTests.Mock;
 
 namespace IMS.UnitTests.Services;

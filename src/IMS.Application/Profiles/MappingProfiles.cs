@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using IMS.Application.Products.Dto;
-using IMS.Domain;
+using IMS.Domain.Products;
 
 namespace IMS.Application.Profiles
 {

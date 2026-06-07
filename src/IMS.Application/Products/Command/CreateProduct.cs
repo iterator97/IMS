@@ -6,6 +6,7 @@ using IMS.Application.Products.Dto;
 using IMS.Application.Shared;
 using IMS.Application.Wrappers;
 using IMS.Domain;
+using IMS.Domain.Products;
 using MediatR;
 using Microsoft.Extensions.Logging;
 

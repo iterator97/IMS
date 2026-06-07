@@ -1,4 +1,6 @@
-﻿using IMS.Domain;
+﻿using IMS.Domain.Discounts;
+using IMS.Domain.Products;
+using IMS.Domain.Users;
 
 namespace IMS.IntegrationTests.Mock
 {

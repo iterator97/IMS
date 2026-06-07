@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace IMS.Domain;
+namespace IMS.Domain.Products;
 
 public class Product
 {

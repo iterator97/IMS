@@ -1,7 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using IMS.Domain;
+using IMS.Domain.Discounts;
+using IMS.Domain.Orders;
+using IMS.Domain.Products;
+using IMS.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 
 namespace IMS.Infrastructure
