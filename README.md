@@ -3,9 +3,7 @@
 Inventory Management System (IMS) is a .NET application for managing products and creating customer orders. The project includes product listing and creation, 
 order creation with stock validation, discount calculation, location charge calculation, and PostgreSQL persistence through Entity Framework Core.
 
-Reuirements covered:
-- Product listing and creation with stock management.
-- Order creation with stock validation, discount calculation, and location charge calculation.
+Assumptions:
 - Discount dates setup covered in IMS.Infrastructure/DataInitializer.cs [BlackFriday, Holiday]. With ability to add feature with new discount, setup discount mode, disable/enable discount.
 
 ## Tech Stack
