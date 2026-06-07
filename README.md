@@ -6,7 +6,7 @@ order creation with stock validation, discount calculation, location charge calc
 Reuirements covered:
 - Product listing and creation with stock management.
 - Order creation with stock validation, discount calculation, and location charge calculation.
-- * Discount dates setup covered in IMS.Infrastructure/DataInitializer.cs [BlackFriday, Holiday]. With ability to ability to add feature with new discount, setup discount mode, disable/enable discount.
+- Discount dates setup covered in IMS.Infrastructure/DataInitializer.cs [BlackFriday, Holiday]. With ability to ability to add feature with new discount, setup discount mode, disable/enable discount.
 
 ## Tech Stack
 - .NET 10
@@ -38,6 +38,8 @@ POSTGRES_PASSWORD=password
 Run docker compose from the repository root to start the PostgreSQL container for the API:
 docker compose up -d
 
+Swaggar is available when the API is running:
+http://localhost:7001/swagger/index.html
 
 ## Running The API - Development
 Setup the databese connection string in `src/IMS.Api/appsettings.Development.json`, sample below:
